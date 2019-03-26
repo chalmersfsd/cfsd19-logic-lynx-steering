@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+    steering:
+        image: cfsd19-dummy-logic-lynx-steering:v0.0.3
+        network_mode: "host"
+        restart: always
+        command: "steering --port=8884 --cid=111 --cidgpio=220 --cidpwm=222 cidanalog=219 --verbose=1 --id=1 --freq=10 --pconst=2000 --iconst=4 --tolerance=1"
