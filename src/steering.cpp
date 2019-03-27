@@ -45,10 +45,10 @@ int32_t main(int32_t argc, char **argv) {
 
         // Interface to a running OpenDaVINCI session.
         
-        cluon::OD4Session od4{111};
-        cluon::OD4Session od4Gpio{220};
-        cluon::OD4Session od4Analog{219};
-        cluon::OD4Session od4Pwm{222};
+        cluon::OD4Session od4{static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]))};
+        cluon::OD4Session od4Gpio{static_cast<uint16_t>(std::stoi(commandlineArguments["cidGpio"]))};
+        cluon::OD4Session od4Analog{static_cast<uint16_t>(std::stoi(commandlineArguments["cidAnalog"]))};
+        cluon::OD4Session od4Pwm{static_cast<uint16_t>(std::stoi(commandlineArguments["cidpwm"]))};
 
         Steering steering(VERBOSE, ID, std::stof(commandlineArguments["pconst"]), std::stof(commandlineArguments["iconst"]), std::stof(commandlineArguments["tolerance"]), od4, od4Gpio, od4Analog, od4Pwm);
 
