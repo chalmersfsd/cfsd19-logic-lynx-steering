@@ -125,7 +125,7 @@ void Steering::body()
     }
 
    	// PWM Msg
-   if(m_steeringCurrentDuty > 3000){ 
+   if(m_steeringCurrentDuty > 2000){ 
         opendlv::proxy::PulseWidthModulationRequest msgPwm;
         senderStamp = m_pwmPinSteer + m_senderStampOffsetPwm;
         if(m_steerRight) //if steer right, then add big offset. this would be converted back to a negative pwm signal
@@ -151,7 +151,7 @@ bool Steering::controlPosition(float setPoint, float refPoint)
     if(m_clampExtended)
       tolerance = 0.2;
     else
-      tolerance = 0.4;
+      tolerance = 0.1;
     bool ret = false;
     //if steering rack is out of range when asms is turned on, return error and do nothing
     if ((setPoint < maxRackRight || setPoint > maxRackLeft)){
@@ -176,14 +176,16 @@ bool Steering::controlPosition(float setPoint, float refPoint)
     steerError = setPoint-refPoint;
    
     float pControl = m_pConst * steerError;
+    if(m_findRackSeqNo == 10)
+      pControl = (m_pConst*4) * steerError;
     float iControl = 0;
 
 
     m_iControlOld = m_iControlOld + m_iConstTI*steerError;
-    if(m_iControlOld > 25000)
-      m_iControlOld = 25000;
-    else if(m_iControlOld < -25000)
-      m_iControlOld = -25000;
+    if(m_iControlOld > 30000)
+      m_iControlOld = 30000;
+    else if(m_iControlOld < -30000)
+      m_iControlOld = -30000;
     
      // if error is within a tolerance then only use integration, otherwise noise would cause overshoot
     if(abs(steerError) < tolerance){
@@ -203,7 +205,7 @@ bool Steering::controlPosition(float setPoint, float refPoint)
     if(abs(steerError) > tolerance) //only set new direction when error is large enough
       m_steerRight = controlSignal < 0;    
     
-    if((abs(steerError) < 0.4 && m_rackFound ) )
+    if((abs(steerError) < tolerance && m_rackFound ) )
       m_steeringCurrentDuty = 0;
     std::cout << "m_steeringCurrentDuty = " << m_steeringCurrentDuty << std::endl;
     if (m_debug){
