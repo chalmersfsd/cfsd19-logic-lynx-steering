@@ -32,10 +32,10 @@
 int32_t main(int32_t argc, char **argv) {
     int32_t retCode{0};
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
-    if ((0 == commandlineArguments.count("port")) || (0 == commandlineArguments.count("cid")) || (0 == commandlineArguments.count("pconst")) || (0 == commandlineArguments.count("iconst")) || (0 == commandlineArguments.count("tolerance"))) {
+    if ((0 == commandlineArguments.count("cid")) || (0 == commandlineArguments.count("pconst")) || (0 == commandlineArguments.count("iconst")) || (0 == commandlineArguments.count("tolerance"))) {
         std::cerr << argv[0] << " testing unit and publishes it to a running OpenDaVINCI session using the OpenDLV Standard Message Set." << std::endl;
-        std::cerr << "Usage:   " << argv[0] << " --port=<udp port>--cid=<OpenDaVINCI session> [--id=<Identifier in case of multiple beaglebone units>] [--verbose]" << std::endl;
-        std::cerr << "Example: " << argv[0] << " --port=8884 --cid=111 --cidgpio=220 --cidanalog=221 --cidpwm=222 --id=1 --verbose=1 --freq=30 --pconst=10000 --iconst=0.5 --tolerance=0.1" << std::endl;
+        std::cerr << "Usage:   " << argv[0] << "[--id=<Identifier in case of multiple beaglebone units>] [--verbose]" << std::endl;
+        std::cerr << "Example: " << argv[0] << "--cid=111 --cidgpio=220 --cidanalog=221 --cidpwm=222 --id=1 --verbose=1 --freq=30 --pconst=10000 --iconst=0.5 --tolerance=0.1" << std::endl;
         retCode = 1;
     } else {
         const uint32_t ID{(commandlineArguments["id"].size() != 0) ? static_cast<uint32_t>(std::stoi(commandlineArguments["id"])) : 0};
@@ -48,18 +48,25 @@ int32_t main(int32_t argc, char **argv) {
         cluon::OD4Session od4{static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]))};
         cluon::OD4Session od4Gpio{static_cast<uint16_t>(std::stoi(commandlineArguments["cidGpio"]))};
         cluon::OD4Session od4Analog{static_cast<uint16_t>(std::stoi(commandlineArguments["cidAnalog"]))};
-cluon::OD4Session od4Pwm{static_cast<uint16_t>(std::stoi(commandlineArguments["cidpwm"]))};
+        cluon::OD4Session od4Pwm{static_cast<uint16_t>(std::stoi(commandlineArguments["cidpwm"]))};
+        float pConst{static_cast<float>(std::stof(commandlineArguments["pconst"]))};
+        float iConst{static_cast<float>(std::stof(commandlineArguments["iconst"]))};
+        float tolerance{static_cast<float>(std::stof(commandlineArguments["tolerance"]))};
 
-        Steering steering(VERBOSE, ID, std::stof(commandlineArguments["pconst"]), std::stof(commandlineArguments["iconst"]), std::stof(commandlineArguments["tolerance"]), od4, od4Gpio, od4Analog, od4Pwm);
+        Steering steering(VERBOSE, ID, pConst, iConst, tolerance, od4, od4Gpio, od4Analog, od4Pwm);
 
        auto onGroundSteeringRequest{[&steering](cluon::data::Envelope &&envelope)
         {   
-            if (!steering.getInitialised()){
-                return;
+            uint16_t senderStamp = envelope.senderStamp();
+            if (senderStamp == 2801) {
+                if (!steering.getInitialised()){
+                    return;
+                }
+                opendlv::proxy::GroundSteeringRequest steeringReq = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(envelope));
+                if (steeringReq.groundSteering() >= -21 && steeringReq.groundSteering() <= 21){
+                    steering.setGroundSteeringRequest(steeringReq.groundSteering());
+                }
             }
-            opendlv::proxy::GroundSteeringRequest steeringReq = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(envelope));
-            if (steeringReq.groundSteering() >= -21 && steeringReq.groundSteering() <= 21)
-                steering.setGroundSteeringRequest(steeringReq.groundSteering());
         }};
         od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
         
