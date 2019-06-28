@@ -34,7 +34,7 @@ float Steering::decode(const std::string &data) noexcept {
     return temp;
 }
 
-Steering::Steering(bool verbose, uint32_t id, float pconst, float iconst, float tolerance, cluon::OD4Session &od4, cluon::OD4Session &od4Gpio, cluon::OD4Session &od4Analog, cluon::OD4Session &od4Pwm)
+Steering::Steering(bool verbose, uint32_t id, float pconst, float iconst, float tolerance, cluon::OD4Session &od4, cluon::OD4Session &od4Gpio, cluon::OD4Session &od4Analog, cluon::OD4Session &od4Pwm, std::map<std::string, std::string> commandlineArguments)
     : m_od4(od4)
     , m_od4Gpio(od4Gpio)
     , m_od4Analog(od4Analog)
@@ -76,6 +76,9 @@ Steering::Steering(bool verbose, uint32_t id, float pconst, float iconst, float 
 
 {
 	Steering::setUp();
+	deadzoneError = static_cast<float>(std::stof(commandlineArguments["deadzoneError"]));
+	deadzoneDuty = static_cast<float>(std::stof(commandlineArguments["deadzoneDuty"]));
+	acceptableError = static_cast<float>(std::stof(commandlineArguments["acceptableError"]));
 }
 
 Steering::~Steering() 
@@ -207,6 +210,13 @@ bool Steering::controlPosition(float setPoint, float refPoint)
     
     if((abs(steerError) < tolerance && m_rackFound ) )
       m_steeringCurrentDuty = 0;
+
+    if(abs(steerError) < deadzoneError &&  abs(steerError) > acceptableError && m_steeringCurrentDuty < 10000)
+    {
+      m_steeringCurrentDuty = deadzoneDuty;
+      if(m_debug)
+        std::cout << "Deadzone steerError = " << m_steeringCurrentDuty << std::endl;
+    }
     std::cout << "m_steeringCurrentDuty = " << m_steeringCurrentDuty << std::endl;
     if (m_debug){
         std::cout << "[LOGIC-STEERING-FINDRACK] Error: " << steerError 
@@ -216,6 +226,9 @@ bool Steering::controlPosition(float setPoint, float refPoint)
                     << "\t Request: " << setPoint
                     << "\t Refpoint" << refPoint
                     << "\t Measure: " << m_steerPosition 
+                    << "\t deadzoneError: " << deadzoneError 
+                    << "\t acceptableError: " << acceptableError 
+                    << "\t deadzoneDuty: " << deadzoneDuty 
                     << std::endl;
     }
     return ret;

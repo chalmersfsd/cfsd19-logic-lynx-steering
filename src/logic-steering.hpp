@@ -42,7 +42,7 @@ class Steering {
     //Steering &operator=(Steering &&) = delete;
 
    public:
-    Steering(bool verbose, uint32_t id, float pconst, float iconst, float tolerance, cluon::OD4Session &od4, cluon::OD4Session &od4Gpio, cluon::OD4Session &od4Analog, cluon::OD4Session &od4Pwm);
+    Steering(bool verbose, uint32_t id, float pconst, float iconst, float tolerance, cluon::OD4Session &od4, cluon::OD4Session &od4Gpio, cluon::OD4Session &od4Analog, cluon::OD4Session &od4Pwm, std::map<std::string, std::string> commandlineArguments);
     ~Steering();
     uint16_t getGpioPinClampSensor();
     uint16_t getGpioPinAsms();
@@ -128,6 +128,10 @@ class Steering {
     const double m_analogOffsetSteerPosition = 27.74;
     const double m_analogOffsetSteerPositionRack = 28.06;
     const double m_iConstTS = 0.03;
+
+    float deadzoneError;
+    float deadzoneDuty;
+    float acceptableError;
     
     //for filtering
     float beta; // 0 < beta < 1
