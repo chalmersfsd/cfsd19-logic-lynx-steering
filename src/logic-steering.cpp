@@ -217,7 +217,7 @@ bool Steering::controlPosition(float setPoint, float refPoint)
       if(m_debug)
         std::cout << "Deadzone steerError = " << m_steeringCurrentDuty << std::endl;
     }
-    std::cout << "m_steeringCurrentDuty = " << m_steeringCurrentDuty << std::endl;
+
     if (m_debug){
         std::cout << "[LOGIC-STEERING-FINDRACK] Error: " << steerError 
                     << "\t Duty: " << m_steeringCurrentDuty 
@@ -254,10 +254,12 @@ m_clampExtended: gpio in from proximity sensor
 
         case 10:
             findRack_currentTime = time (NULL);
-            std::cout << "time since end of m_findRackSeqNo = 10: " << findRack_currentTime - findRack_startTime << std::endl;
+            if(m_debug)
+              std::cout << "time since end of m_findRackSeqNo = 10: " << findRack_currentTime - findRack_startTime << std::endl;
             if(controlPosition((m_steerPositionRack+(float) 0), m_steerPosition) && findRack_currentTime - findRack_startTime > 5){
             m_clamped = true;
-            std::cout << "Clamp set\n";
+            if(m_debug)
+              std::cout << "Clamp set\n";
             }
             
             if (m_clampExtended){
