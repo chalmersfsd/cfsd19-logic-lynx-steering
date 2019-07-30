@@ -60,6 +60,13 @@ cluon::OD4Session od4Pwm{static_cast<uint16_t>(std::stoi(commandlineArguments["c
             opendlv::proxy::GroundSteeringRequest steeringReq = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(envelope));
             if (steeringReq.groundSteering() >= -21 && steeringReq.groundSteering() <= 21)
                 steering.setGroundSteeringRequest(steeringReq.groundSteering());
+            else{ //If steer request is too big, then limit it
+              if(steeringReq.groundSteering() < -21)
+                steering.setGroundSteeringRequest(-21.0);
+              else
+              if(steeringReq.groundSteering() > 21)
+                steering.setGroundSteeringRequest(21.0);
+            }
         }};
         od4.dataTrigger(opendlv::proxy::GroundSteeringRequest::ID(), onGroundSteeringRequest);
         
