@@ -40,6 +40,7 @@ int32_t main(int32_t argc, char **argv) {
     } else {
         const uint32_t ID{(commandlineArguments["id"].size() != 0) ? static_cast<uint32_t>(std::stoi(commandlineArguments["id"])) : 0};
         const bool VERBOSE{commandlineArguments.count("verbose") != 0};
+        const bool flipRequest{commandlineArguments.count("flipRequest") != 0};
         const float FREQ{std::stof(commandlineArguments["freq"])};
         std::cout << "Micro-Service ID:" << ID << std::endl;
 
@@ -58,13 +59,16 @@ cluon::OD4Session od4Pwm{static_cast<uint16_t>(std::stoi(commandlineArguments["c
                 return;
             }
             opendlv::proxy::GroundSteeringRequest steeringReq = cluon::extractMessage<opendlv::proxy::GroundSteeringRequest>(std::move(envelope));
-            if (steeringReq.groundSteering() >= -21 && steeringReq.groundSteering() <= 21)
-                steering.setGroundSteeringRequest(steeringReq.groundSteering());
+            float steerRequest = steeringReq.groundSteering();
+            if(flipRequest)
+              steerRequest = -steerRequest;
+            if (steerRequest >= -21 && steerRequest <= 21)
+                steering.setGroundSteeringRequest(steerRequest);
             else{ //If steer request is too big, then limit it
-              if(steeringReq.groundSteering() < -21)
+              if(steerRequest < -21)
                 steering.setGroundSteeringRequest(-21.0);
               else
-              if(steeringReq.groundSteering() > 21)
+              if(steerRequest > 21)
                 steering.setGroundSteeringRequest(21.0);
             }
         }};

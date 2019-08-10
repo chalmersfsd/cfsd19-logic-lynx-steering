@@ -2,7 +2,7 @@ version: '2'
 
 services:
     steering:
-        image: cfsd19-dummy-logic-lynx-steering:v0.0.4
+        image: cfsd19-dummy-logic-lynx-steering:v0.0.5
         network_mode: "host"
         restart: always
-        command: "steering --port=8884 --cid=219 --cidGpio=219 --cidpwm=219 --cidAnalog=219 --verbose --id=1 --freq=15 --pconst=2300 --iconst=5.5 --tolerance=1 --deadzoneError=3.7 --acceptableError=1 --deadzoneDuty=18000"
+        command: "steering --port=8884 --cid=219 --cidGpio=219 --cidpwm=219 --cidAnalog=219 --verbose --id=1 --freq=15 --pconst=2000 --iconst=4 --tolerance=1 --deadzoneError=3.7 --acceptableError=1 --deadzoneDuty=18000 --flipRequest"
