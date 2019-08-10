@@ -53,7 +53,7 @@ cluon::OD4Session od4Pwm{static_cast<uint16_t>(std::stoi(commandlineArguments["c
 
         Steering steering(VERBOSE, ID, std::stof(commandlineArguments["pconst"]), std::stof(commandlineArguments["iconst"]), std::stof(commandlineArguments["tolerance"]), od4, od4Gpio, od4Analog, od4Pwm, commandlineArguments);
 
-       auto onGroundSteeringRequest{[&steering](cluon::data::Envelope &&envelope)
+       auto onGroundSteeringRequest{[&steering, &flipRequest](cluon::data::Envelope &&envelope)
         {   
             if (!steering.getInitialised()){
                 return;
