@@ -1,8 +1,9 @@
-## OpenDLV Microservice for Beaglebone
+# Chalmersfsd Microservice for Steering Control
 
-This repository provides source code for beaglebones for the OpenDLV.io software ecosystem.
+This repository provides source code for steering control on Lynx.  
+Also finds and connects to the steering rack.
 
-[![Build Status](https://travis-ci.org/chalmers-revere/opendlv.io.svg?branch=master)](https://travis-ci.org/se-research/opendlv.sensors.oxts) [![License: GPLv3](https://img.shields.io/badge/license-GPL--3-blue.svg
+[![Build Status](https://travis-ci.com/chalmersfsd/cfsd19-logic-lynx-steering.svg?branch=master)](https://travis-ci.com/chalmersfsd/cfsd19-logic-lynx-steering) [![License: GPLv3](https://img.shields.io/badge/license-GPL--3-blue.svg
 )](https://www.gnu.org/licenses/gpl-3.0.txt)
 
 
@@ -24,12 +25,12 @@ No dependencies! You just need a C++14-compliant compiler to compile this projec
 ## Usage
 This microservice is created automatically on changes to this repository via Docker's public registry for:
 * [x86_64](https://hub.docker.com/r/chalmersrevere/opendlv.io-amd64/tags/)
-* [armhf](https://hub.docker.com/r/chalmersrevere/opendlv.io-armhf/tags/)
-* [aarch64](https://hub.docker.com/r/chalmersrevere/opendlv.io-aarch64/tags/)
+* --[armhf](https://hub.docker.com/r/chalmersrevere/opendlv.io-armhf/tags/)--
+* --[aarch64](https://hub.docker.com/r/chalmersrevere/opendlv.io-aarch64/tags/)--
 
-To run this microservice using our pre-built Docker multi-arch images to connect to an OXTS GPS/INSS unit broadcasting data to `195.0.0.33:3000` and to publish the messages according to OpenDLV Standard Message Set into session 111 in Google Protobuf format, simply start it as follows:
+To run this microservice with docker-compose with either pre-built images from our docker repositories or with a locally built, simply specify the correct image name and tag and run with:
 ```
-docker run --rm --net=host chalmersrevere/opendlv.io-multi:proxy-beaglebone-v0.0.1 beaglebone --cid=111 --verbose
+docker-compose up
 ```
 
 ## Build from sources on the example of Ubuntu 16.04 LTS
@@ -43,37 +44,19 @@ make && make test && make install
 ```
 
 ## Build it with docker
-Make sure you have the latest docker version. 1.17
+Make sure you have the latest docker version.
 
 AMD64:
 Run
 ```
-docker build -t chalmersrevere/opendlv.io-multi:proxy-beaglebone-v0.0.1 -f Dockerfile.amd64 .
+docker build -t chalmersfsd/cfsd19-logic-lynx-steering:latest -f Dockerfile.amd64 .
 ```
 
 ARMHF:
 Run
 ```
-docker build -t chalmersrevere/opendlv.io-multi-armhf:proxy-beaglebone-v0.0.1 -f Dockerfile.armhf .
+docker build -t chalmersfsd/cfsd19-logic-lynx-steering:latest -f Dockerfile.armhf .
 ```
-
-## Execute with Docker-compose
-Make sure you have the latest docker-compose verison.
-
-AMD64:
-Run
-```
-cd usecase
-docker-compose up
-```
-
-ARMHF:
-Run
-```
-cd usecase
-docker-compose -f beaglebone.yml up
-```
-
 
 ## License
 
